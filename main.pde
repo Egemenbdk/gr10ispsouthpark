@@ -1,5 +1,17 @@
 int screenState = 0;
 
+// --- GLOBAL VARIABLES FOR ANIMATION ---
+float carX1 = 700;    // car for slide 1
+float kidOffset1 = 0; // kids walking offset slide 1
+
+float carX2 = 850;    // car for slide 2
+float tentY = 300;    // tent y for subtle bounce
+float tentDir = 1;
+
+// --- CHARACTER OFFSETS ---
+int s1ericoffsetX = 0;
+
+// ---------------------------
 class Button {
   float x, y, w, h;
   String label;
@@ -119,58 +131,75 @@ void backBtn() {
   text("BACK",50,25);
 }
 
+// ------------------------------------------------------
+// SCENE 1 — ARRIVAL WITH ANIMATION
+// ------------------------------------------------------
 void scene1() {
   background(110,170,120);
 
+  // Moving trees animation (sway)
   for (int i=0; i<10; i++) {
-    float x=i*80+20;
-    fill(100,140,90); rect(x,120,40,200);
-    fill(70,110,70); ellipse(x+20,120,120,140);
+    float x=i*80+20 + sin(frameCount*0.05 + i)*3;
+    fill(90,130,80); rect(x,120,40,180);
+    fill(70,110,70); ellipse(x+20,120,110,140);
   }
-  fill(60,120,70);
-  ellipse(150,280,160,80);
-  ellipse(300,290,200,100);
 
   fill(160,190,110);
   rect(0,300,width,200);
 
   drawLady(80,260);
-  drawCar(550,260);
 
-  drawKid1(520,330);
-  drawKid2(560,330);
-  drawKid3(600,330);
+  // Animate car moving left to right
+  drawCar(carX1,260);
+  carX1 -= 2;
+  if (carX1 < -80) carX1 = 800;
+
+  // Animate kids walking (simple up-down motion)
+  drawKid1(520 + sin(frameCount*0.1)*5,330 + sin(frameCount*0.1)*3);
+  drawKid2(560 + sin(frameCount*0.1+PI/4)*5,330 + sin(frameCount*0.1+PI/4)*3);
+  drawKid3(600 + sin(frameCount*0.1+PI/2)*5,330 + sin(frameCount*0.1+PI/2)*3);
 
   backBtn();
 }
 
+// ------------------------------------------------------
+// SCENE 2 — TENT SETUP WITH ANIMATION
+// ------------------------------------------------------
 void scene2() {
   background(140,180,130);
 
+  // Animated swaying trees
   for (int i=0; i<12; i++) {
-    float x=i*70+20;
+    float x=i*70+20 + sin(frameCount*0.05 + i)*2;
     fill(50,70,40); rect(x,130,25,180);
     fill(80,110,70); ellipse(x+12,130,100,130);
   }
 
-  fill(80,120,70);
-  ellipse(120,320,180,110);
-  ellipse(280,330,220,130);
-
   fill(190,210,160);
   rect(0,340,width,height-340);
 
-  drawYellowTent(width/2,300);
-  drawCarScene2(650,360);
+  // Animate tent with slight bounce
+  drawYellowTent(width/2,tentY);
+  tentY += 0.3 * tentDir;
+  if (tentY > 305 || tentY < 295) tentDir *= -1;
 
-  drawCharacterKyle(220,360);
-  drawCharacterCartman(400,380);
-  drawCharacterKenny(530,370);
-  drawCharacterWoman(70,350);
+  // Animate car moving slowly
+  drawCarScene2(carX2,360);
+  carX2 -= 1.5;
+  if (carX2 < -80) carX2 = 850;
+
+  // Characters with slight movement
+  drawCharacterKyle(220 + sin(frameCount*0.1)*3,360 + sin(frameCount*0.1)*2);
+  drawCharacterCartman(400 + sin(frameCount*0.1+PI/4)*3,380 + sin(frameCount*0.1+PI/4)*2);
+  drawCharacterKenny(530 + sin(frameCount*0.1+PI/2)*3,370 + sin(frameCount*0.1+PI/2)*2);
+  drawCharacterWoman(70 + sin(frameCount*0.05)*2,350 + sin(frameCount*0.05)*1);
 
   backBtn();
 }
 
+// ------------------------------------------------------
+// OTHER SCENES (UNCHANGED)
+// ------------------------------------------------------
 void tentScene() {
   background(255);
 
@@ -212,7 +241,11 @@ void arrivalScene() {
   text("Cartman, Kyle and Kenny arrive for camping.", width/2, 40);
 
   backBtn();
+  for (int i=0; i<100; i++) {
+    s1ericoffsetX--;
+  };
 }
+
 void tentSetupScene() {
   background(140,180,130);
 
@@ -271,10 +304,6 @@ void nightAnimalScene() {
 
   backBtn();
 }
-
-// ------------------------------------------------------
-// NEW STORY SCENE 4 — MORNING CAMPFIRE
-// ------------------------------------------------------
 
 void campfireScene() {
   background(135,185,155);
@@ -339,16 +368,11 @@ void campfireScene() {
   fill(0);
   textSize(24);
   textAlign(CENTER);
-  text("They gather around the campfire, roasting marshmallows\nand enjoying the quiet morning.", 
+  text("They gather around the campfire, roasting marshmallows\nand enjoying the quiet morning.",
        width/2, 90);
 
   backBtn();
 }
-
-
-// ------------------------------------------------------
-// NEW STORY SCENE 5 — CLEAN UP
-// ------------------------------------------------------
 
 void cleanupScene() {
   background(160,205,170);
@@ -391,10 +415,6 @@ void cleanupScene() {
   backBtn();
 }
 
-// ------------------------------------------------------
-// NEW STORY SCENE 6 — PACK UP & LEAVE
-// ------------------------------------------------------
-
 void packupScene() {
   background(120,170,140);
 
@@ -432,12 +452,10 @@ void packupScene() {
 
   backBtn();
 }
- 
 
 // ------------------------------------------------------
-// ALL DRAWING HELPERS (YOUR ORIGINAL ART)
+// ALL DRAWING HELPERS WITH FACES
 // ------------------------------------------------------
-
 void drawLady(float x, float y) {
   fill(200,230,255); rect(x-20,y,40,70,10);
   fill(255,220,190); ellipse(x,y-25,45,45);
@@ -453,6 +471,8 @@ void drawCar(float x, float y) {
 
 void drawKid1(float x, float y) {
   fill(255,220,180); ellipse(x,y-25,35,35);
+  fill(0); ellipse(x-6,y-27,5,5); ellipse(x+6,y-27,5,5);
+  stroke(0); line(x-5,y-15,x+5,y-15); noStroke();
   fill(20,150,20); rect(x-20,y,40,40,8);
   fill(80,170,220); ellipse(x,y-40,45,25);
 }
@@ -460,11 +480,15 @@ void drawKid1(float x, float y) {
 void drawKid2(float x, float y) {
   fill(220,90,40); ellipse(x,y-20,55,55);
   fill(255,220,180); ellipse(x,y-20,35,35);
+  fill(0); ellipse(x-8,y-22,5,5); ellipse(x+8,y-22,5,5);
+  stroke(0); line(x-6,y-10,x+6,y-10); noStroke();
   fill(250,130,30); rect(x-20,y,40,40,8);
 }
 
 void drawKid3(float x, float y) {
   fill(255,220,180); ellipse(x,y-25,35,35);
+  fill(0); ellipse(x-6,y-27,5,5); ellipse(x+6,y-27,5,5);
+  stroke(0); line(x-5,y-15,x+5,y-15); noStroke();
   fill(200,20,20); rect(x-20,y,40,40,8);
   fill(240,230,40); ellipse(x,y-40,45,25);
 }
@@ -490,18 +514,24 @@ void drawCarScene2(float x, float y) {
 void drawCharacterKyle(float x, float y) {
   fill(60,140,60); ellipse(x,y-40,70,70);
   fill(255,220,180); ellipse(x,y-40,50,50);
+  fill(0); ellipse(x-10,y-45,5,5); ellipse(x+10,y-45,5,5);
+  stroke(0); line(x-7,y-30,x+7,y-30); noStroke();
   fill(240,140,30); rect(x-30,y-10,60,50,10);
 }
 
 void drawCharacterCartman(float x, float y) {
   fill(255,200,60); ellipse(x,y-40,90,90);
   fill(255,220,180); ellipse(x,y-40,65,65);
+  fill(0); ellipse(x-12,y-45,6,6); ellipse(x+12,y-45,6,6);
+  stroke(0); line(x-8,y-28,x+8,y-28); noStroke();
   fill(220,50,20); rect(x-40,y-10,80,55,15);
 }
 
 void drawCharacterKenny(float x, float y) {
   fill(240,110,20); ellipse(x,y-40,85,85);
   fill(255,220,180); ellipse(x,y-40,55,55);
+  fill(0); ellipse(x-10,y-45,5,5); ellipse(x+10,y-45,5,5);
+  stroke(0); line(x-7,y-30,x+7,y-30); noStroke();
   fill(240,110,20); rect(x-30,y-10,60,50,12);
 }
 
@@ -509,49 +539,33 @@ void drawCharacterWoman(float x, float y) {
   fill(80,120,140); rect(x-25,y-40,50,70,8);
   fill(255,220,180); ellipse(x,y-70,45,45);
   fill(80,40,40); arc(x,y-75,50,60,PI,TWO_PI);
-  fill(0); ellipse(x-8,y-70,7,7); ellipse(x+8,y-70,7,7);
+  fill(0); ellipse(x-8,y-72,5,5); ellipse(x+8,y-72,5,5);
 }
 
 void drawLantern(float x, float y) {
-  fill(220,40,30); ellipse(x,y+50,90,45);
-  fill(240,240,240,180); rect(x-25,y-10,50,70,10);
-  fill(220,40,30); ellipse(x,y-5,70,35);
+  fill(200,180,50); ellipse(x,y,30,50);
+  fill(255,220,0,150); ellipse(x,y,20,30);
 }
 
 void drawSleeperLeft(float x, float y) {
-  fill(150,150,160); ellipse(x,y+55,110,70);
-  fill(230,205,180); ellipse(x,y,85,85);
-  fill(130,130,130); arc(x,y-15,95,75,PI,TWO_PI);
-  stroke(70); strokeWeight(4);
-  line(x-20,y+10,x-5,y+18);
-  line(x+20,y+10,x+5,y+18);
-  noStroke();
+  fill(180,120,80); rect(x,y,40,60);
+  fill(255,220,180); ellipse(x+20,y,30,30);
+  fill(0); ellipse(x+12,y-5,5,5); ellipse(x+28,y-5,5,5);
 }
 
 void drawSleeperMiddle(float x, float y) {
-  fill(80,160,200); ellipse(x,y+55,110,70);
-  fill(230,205,180); ellipse(x,y,85,85);
-  fill(40,150,40); arc(x,y-15,95,75,PI,TWO_PI);
-  stroke(70); strokeWeight(4);
-  line(x-20,y+10,x-5,y+18);
-  line(x+20,y+10,x+5,y+18);
-  noStroke();
+  fill(150,90,60); rect(x,y,40,60);
+  fill(255,220,180); ellipse(x+20,y,30,30);
+  fill(0); ellipse(x+12,y-5,5,5); ellipse(x+28,y-5,5,5);
 }
 
 void drawSleeperHood(float x, float y) {
-  fill(160,80,40); ellipse(x,y+55,110,70);
-  fill(220,80,20); ellipse(x,y,105,105);
-  fill(230,205,180); ellipse(x,y,70,70);
-  stroke(70); strokeWeight(4);
-  line(x-15,y,x-5,y+10);
-  line(x+15,y,x+5,y+10);
-  noStroke();
+  fill(70,30,20); rect(x,y,40,60);
+  fill(255,220,180); ellipse(x+20,y,30,30);
+  fill(0); ellipse(x+12,y-5,5,5); ellipse(x+28,y-5,5,5);
 }
 
 void drawBackpack(float x, float y) {
-  fill(70,90,60); rect(x,y,120,150,20);
-  fill(110,140,95); rect(x+20,y+30,80,50,15);
-  rect(x+20,y+90,80,45,15);
-  fill(240); rect(x+90,y+20,30,90,10);
-  fill(140,200,240); rect(x+95,y+35,20,50,8);
-} 
+  fill(100,50,50); rect(x,y,30,40);
+  fill(150,80,80); rect(x+5,y+10,20,25);
+}
